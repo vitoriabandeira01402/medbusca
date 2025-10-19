@@ -16,6 +16,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/usuarios', require('./routes/usuarioRoutes'));
 app.use('/api/remedios', require('./routes/remedioRoutes'));
 app.use('/api/farmacias', require('./routes/farmaciaRoutes'));
+app.use('/api/usuarios', require('./routes/favoritoRoutes'));
+app.use('/api', require('./routes/notificacaoRoutes'));
 
 app.get('/api/health', (req, res) => {
   res.json({

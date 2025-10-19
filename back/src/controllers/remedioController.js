@@ -1,4 +1,5 @@
 const Remedio = require('../models/remedio');
+const { verificarNotificacoesEstoque } = require('../services/notificacaoService');
 
 const criarRemedio = async (req, res) => {
   try {
@@ -103,7 +104,62 @@ const buscarRemedioPorNome = async (req, res) => {
   }
 };
 
+const buscarRemedioPorCategoria = async (req, res) => {
+  try {
+    const remedio = await Remedio.findOne({ categoria: req.params.categoria });
+    if (!remedio) {
+      return res.status(404).json({
+        success: false,
+        message: 'Remédio não encontrado'
+      });
+    }
+    res.json({
+      success: true,
+      data: remedio
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const atualizarRemedio = async (req, res) => {
+  try {
+    const remedio = await Remedio.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!remedio) {
+      return res.status(404).json({
+        success: false,
+        message: 'Remédio não encontrado'
+      });
+    }
+
+    // VERIFICAR NOTIFICAÇÕES SE O ESTOQUE MUDOU
+    if (req.body.disponivel === true) {
+      await verificarNotificacoesEstoque(req.params.id);
+    }
+    
+    res.json({
+      success: true,
+      data: remedio
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
+  atualizarRemedio,
+  buscarRemedioPorCategoria,
   criarRemedio,
   buscarRemedios,
   buscarRemedioPorId,
